@@ -172,3 +172,96 @@ public:
     }
 };
 ```
+
+
+## You are given an m x n binary matrix grid, where 0 represents a sea cell and 1 represents a land cell.
+
+A move consists of walking from one land cell to another adjacent (4-directionally) land cell or walking off the boundary of the grid.
+
+Return the number of land cells in grid for which we cannot walk off the boundary of the grid in any number of moves.
+
+Input: grid = [[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]]
+Output: 3
+Explanation: There are three 1s that are enclosed by 0s, and one 1 that is not enclosed because its on the boundary.
+Input: grid = [[0,1,1,0],[0,0,1,0],[0,0,1,0],[0,0,0,0]]
+Output: 0
+Explanation: All 1s are either on the boundary or can reach the boundary.
+
+```
+class Solution {
+public:
+    bool isSafe(int i, int j, int r, int c){
+        return i>=0 && j>=0 && i<r && j<c;
+    }
+
+    int numEnclaves(vector<vector<int>>& grid) {
+        int r = grid.size();
+        int c = grid[0].size();
+
+        vector<vector<bool>> visited(r, vector<bool>(c, false));
+        queue<pair<int, int>> q;
+
+        // top row
+        for(int j=0; j<c; j++){
+            if(grid[0][j] == 1){
+                q.push({0, j});
+                visited[0][j] = true;
+            }
+        }
+
+        // right col
+        for(int i=0; i<r; i++){
+            if(grid[i][c-1] == 1){
+                q.push({i, c-1});
+                visited[i][c-1] = true;
+            }
+        }
+
+        // bottom row
+        for(int j=0; j<c; j++){
+            if(grid[r-1][j] == 1){
+                q.push({r-1, j});
+                visited[r-1][j] = true;
+            }
+        }
+
+        // left col
+        for(int i=0; i<r; i++){
+            if(grid[i][0] == 1){
+                q.push({i, 0});
+                visited[i][0] = true;
+            }
+        }
+
+        while(!q.empty()){
+            auto curr = q.front();
+            q.pop();
+
+            vector<int> delX = {-1, 0, 0, 1};
+            vector<int> delY = {0, -1, 1, 0};
+
+            for(int k=0; k<4; k++){
+                int _i = curr.first + delX[k];
+                int _j = curr.second + delY[k];
+
+                if(isSafe(_i,_j,r,c) && !visited[_i][_j] && grid[_i][_j] == 1){
+                    q.push({_i,_j});
+                    visited[_i][_j] = true;
+                }
+            }
+        }
+
+        int ans = 0;
+
+        for(int i=1; i<r-1; i++){
+            for(int j=1; j<c-1; j++){
+                if(grid[i][j] == 1 && !visited[i][j]){
+                    ans++;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+```
