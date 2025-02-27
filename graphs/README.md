@@ -82,3 +82,93 @@ class Solution
     }
 };
 ```
+
+## You are given an m x n matrix board containing letters 'X' and 'O', capture regions that are surrounded:
+Connect: A cell is connected to adjacent cells horizontally or vertically.
+Region: To form a region connect every 'O' cell.
+Surround: The region is surrounded with 'X' cells if you can connect the region with 'X' cells and none of the region cells are on the edge of the board.
+To capture a surrounded region, replace all 'O's with 'X's in-place within the original board. You do not need to return anything.
+
+Example 1:
+
+Input: board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]
+
+Output: [["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]
+
+Example 2:
+
+Input: board = [["X"]]
+
+Output: [["X"]]
+
+```
+class Solution {
+public:
+    bool isIndexSafe(int i, int j, int r, int c){
+        return i>=0 && i<r && j>=0 && j<c;
+    }
+
+    bool isEdge(int i, int j, int r, int c){
+        return i==0 || j==c-1 || i==r-1 || j==0;
+    }
+
+    bool isSurrounded(vector<vector<char>>& board, int i, int j, vector<pair<int, int>> &nodes,
+    vector<vector<bool>> &visited){
+        int r = board.size();
+        int c = board[0].size();
+        queue<pair<int, int>> q;
+
+        q.push({i,j});
+        visited[i][j] = true;
+        nodes.push_back({i,j});
+
+        bool flag = true;
+
+        while(!q.empty()){
+            auto curr = q.front();
+            q.pop();
+
+            vector<int> delX = {-1, 0, 0, 1};
+            vector<int> delY = {0, -1, 1, 0};
+
+            for(int k=0; k<4; k++){
+                int _i = curr.first + delX[k];
+                int _j = curr.second + delY[k];
+
+                if(isIndexSafe(_i, _j, r, c) && board[_i][_j] == 'O' && !visited[_i][_j]){
+                    if(isEdge(_i, _j, r, c)) flag = false;
+
+                    q.push({_i, _j});
+                    visited[_i][_j] = true;
+                    nodes.push_back({_i,_j});
+                }
+            }
+        }  
+
+        return flag;
+    }
+
+    void solve(vector<vector<char>>& board) {
+        int r = board.size();
+        int c = board[0].size();
+
+        vector<vector<bool>> visited(r, vector<bool>(c, false));
+
+        for(int i=1; i<r-1; i++){
+            for(int j=1; j<c-1; j++){
+                if(board[i][j] == 'O' && !visited[i][j]){
+                    vector<pair<int, int>> nodes;
+                    bool isSurroundedRegion = isSurrounded(board, i, j, nodes, visited);
+                    if(isSurroundedRegion){
+                        for(auto node: nodes){
+                            board[node.first][node.second] = 'X';
+                        }
+                    }
+                }
+            }
+        }
+
+        return;
+    }
+};
+```
